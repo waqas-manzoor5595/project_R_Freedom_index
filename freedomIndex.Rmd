@@ -45,12 +45,97 @@ Go to the target website, in this case
 ### Step 2
 Search for the data/table
 
-![this](https://drive.google.com/file/d/1HYtsRRTmJSfFZXS3gQzryZACwi1QqBBX/view?usp=drive_link)
+![this](C:\Users\shahw\OneDrive\Documents\code_playground\project_R_Freedom_index\img0.png)
 
 
 ### Step 3
 
+* Once on table, left click and press inspect.
+* On the html part, search for table format.(**as highlighted in green**)
+* Click on it, and see type of table.(**as highlighted in yellow**)
+* Copy the type table.
 
+![see](C:\Users\shahw\OneDrive\Documents\code_playground\project_R_Freedom_index\img1.png)
 
+### Step 4
+Open R studio(**or the platform used for analysis**) 
+
+#### Saving url in variable
+```{r}
+url <- "https://en.wikipedia.org/wiki/List_of_freedom_indices"
 ```
+
+#### Using `read_html()`to read html data
+```{r}
+data <- read_html(url)
+```
+#### Using `html_element()` and `html_table()`
+
+* `html_element()`used to read type of data element for scrapping.
+* `html_table()` used to convert html-type into readable DataFrame.
+```{r}
+data_r <-data %>% html_element("table.wikitable.sortable") %>% html_table()
+```
+
+**Scrapping data is done let us see what data we have**
+
+# Pre-cleaning/ viewing data
+### Column names
+```{r}
+colnames(data_r)
+```
+**As we can see column names are repeating, having duplicates, having spaces, and ending with []**
+
+### Viewing data 
+```{r}
+head(data_r,20)
+```
+
+**As we can see columns are not clean, forexample columns with `chr` should have `dbl`, columns have numbers, spaces and character parts ie; 1 free,5 not free etc, nil, n/a showing as "_" . let us fix all of it.**
+
+# Cleaning the data
+## Fixing the columns
+using `vector` to replace the column names
+
+
+```{r}
+new_colnames <- c("country", "freedom_in_the_world", "score_freedom", "economic_freedom", "score_economic", "press_freedom", "score_press", "democracy_index", "score_democracy")
+
+colnames(data_r) <- new_colnames
+```
+### Viewing new updated columns
+```{r}
+colnames(data_r)
+```
+
+**AS we can see column names have been cleaned**
+
+## Fixing the columns 
+Using `mutate()`, `gsub()` and `redix` to update column values
+```{r}
+columns_to_clean <- c("freedom_in_the_world", "economic_freedom", "press_freedom", "democracy_index")
+
+data_r <- data_r %>%
+  mutate(across(all_of(columns_to_clean),
+                ~ ifelse(is.na(.) | . == "n/a", NA, gsub("\\d+", "", .))))
+```
+
+## Fixing the Variable Type
+Again using `mutate()`
+```{r}
+columns_to_convert <- c("score_freedom", "score_economic", "score_press", "score_democracy")
+
+data_r <- suppressWarnings({
+  data_r %>%
+    mutate(across(all_of(columns_to_convert),
+                  ~ ifelse(. %in% c("—", "NA", "N/A", ""), NA, as.numeric(.))))
+})
+```
+
+## Viewing Cleaned Data
+```{r}
+head(data_r,20)
+```
+**Now our Data is clean and ready for analyzing and Visualization**
+
 
