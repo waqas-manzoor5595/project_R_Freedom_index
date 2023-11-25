@@ -2,7 +2,7 @@
 title: "Freedom Index"
 author: "Waqqas Manzoor"
 date: "2023-11-23"
-output: html_document
+output: github_document
 ---
 
 # Freedom Index Global With respect to India
@@ -336,52 +336,6 @@ data_r[107,] %>%
 
 * **Adopting New Strategies to become Full Democracy**
 
-* **Right now India stands on 107th position Globally but scores better in Global Average in Freedom and Democracy **
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+* **Right now India stands on 107th position Globally but scores better in Global Average in Freedom and Democracy**
 
 
