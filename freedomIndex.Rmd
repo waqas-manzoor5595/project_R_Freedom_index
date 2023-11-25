@@ -5,7 +5,8 @@ date: "2023-11-23"
 output: html_document
 ---
 
-# Freedom Index
+# Freedom Index Global With respect to India
+
 #### About the Data
 From `Wikipedia`, the free encyclopedia
 This article contains a list of freedom indices produced by several non-governmental organizations that publish and maintain assessments of the state of freedom in the world, according to their own various definitions of the term, and rank countries as being free, partly free, or using various measures of freedom, including civil liberties, political rights and economic rights. Some of the indices measure only some aspects of freedom, such as democracy or corruption.
@@ -45,7 +46,7 @@ Go to the target website, in this case
 ### Step 2
 Search for the data/table
 
-![this](C:\Users\shahw\OneDrive\Documents\code_playground\project_R_Freedom_index\img0.png)
+![this](C:\Users\shahw\OneDrive\Documents\code_playground\project_R_Freedom_index\images\img0.png)
 
 
 ### Step 3
@@ -55,7 +56,7 @@ Search for the data/table
 * Click on it, and see type of table.(**as highlighted in yellow**)
 * Copy the type table.
 
-![see](C:\Users\shahw\OneDrive\Documents\code_playground\project_R_Freedom_index\img1.png)
+![see](C:\Users\shahw\OneDrive\Documents\code_playground\project_R_Freedom_index\images\img1.png)
 
 ### Step 4
 Open R studio(**or the platform used for analysis**) 
@@ -120,10 +121,19 @@ data_r <- data_r %>%
                 ~ ifelse(is.na(.) | . == "n/a", NA, gsub("\\d+", "", .))))
 ```
 
+## Fixing unwanted spaces
+using`trimws`
+```{r}
+data_r[] <- lapply(data_r, trimws)
+```
+
+
+
 ## Fixing the Variable Type
 Again using `mutate()`
 ```{r}
 columns_to_convert <- c("score_freedom", "score_economic", "score_press", "score_democracy")
+
 
 data_r <- suppressWarnings({
   data_r %>%
@@ -137,5 +147,241 @@ data_r <- suppressWarnings({
 head(data_r,20)
 ```
 **Now our Data is clean and ready for analyzing and Visualization**
+
+# Analyzing the data
+## India VS World(average)
+
+* Lets see what is the global mean for score of freedom, economy etc.
+* Then we will compare it with how India compares with the Rest.
+
+```{r}
+
+mean_countries<-data_r %>% drop_na() %>%
+   summarize( mean_freedom = mean(score_freedom), mean_economy = mean(score_economic), mean_press=mean(score_press),mean_democracy=mean(score_democracy)) 
+      
+head(mean_countries)
+```
+Right we can see global mean, now lets find out where India stands
+
+```{r}
+Indian_r <- data_r[107,] %>% select(score_freedom, score_economic, score_press, score_democracy, country)
+head(Indian_r)
+```
+#### It seems India is above global average in score_freedom and score_democracy but just above global average .Also there are many autocratic countries. 
+##### India is also below global average in score_economics and does very poorly in score_press.
+##### lets dig a little deeper to see with data why it is the way it is. But first let us see top performing countries in each index.
+
+
+## Top countries in each index
+
+### Top countries with absolute freedom
+
+```{r}
+top_freedom <- data_r %>% arrange(desc(score_freedom))
+head(top_freedom) %>% select(country) 
+```
+
+### Countries with best performing economies
+
+```{r}
+top_economics <- data_r %>% arrange(desc(score_economic))
+head(top_economics) %>% select(country)
+```
+### Countries where Press is Absolutely free
+
+```{r}
+top_press <- data_r %>% arrange(desc(score_press))
+head(top_press) %>% select(country)
+```
+
+### Countries with best Democracies
+
+```{r}
+top_democracy <- data_r %>% arrange(desc(score_democracy))
+head(top_democracy) %>% select(country)
+```
+# Data Visualization 
+
+In this segment we: 
+
+* Will see how different indexes changes countries performance.
+* Will see different parameters and analyze using visualization.
+* Will see why India performs low in Economic index and Press index.
+
+### Economy VS. Freedom
+Lets see if Free Markets/Economies mean More Freedom
+
+```{r}
+data_r %>% drop_na() %>%
+  ggplot(aes(x = score_economic, y = score_freedom)) +
+geom_point(color = "darkgreen") + geom_smooth() +
+      labs(title = "Relationship Between Economic Score and Freedom Score",x = "Economic Score",y = "Freedom Score") +
+    theme_minimal()
+```
+
+
+
+**WE can conclude**
+
+* There is a positive relation till Economic score = 70 which means if one is developing nation it is better for them to have free markets.
+* There is a negative relation from Economic score > 70 which means if one is a developed nation, it is better to have mixed market.
+
+
+### Democracy VS Freedom
+Lets see if Democracies are inheretly Free
+
+```{r}
+data_r %>% drop_na() %>%
+  ggplot(aes(x = score_freedom, y = score_democracy)) +
+    geom_point(color = "darkgreen") + geom_smooth(method='lm')+
+      labs(title = "Relationship Between Freedom Score and Democracy Score",x = "Freedom Score",y = "Democracy Score") +
+    theme_minimal()
+```
+
+**As we can see there is a positive relation between Democracy and Freedom, therefore, Stronger the Democracy more the Freedom**
+
+**Now since India is a Democracy that is why India scores better than global average in Freedom and Democracy**
+
+#### Why India scores less in Press Freedom ?
+ To answer this question lets first see how the distribution of press freedom looks like
+
+### Distribution of press freedom.
+
+```{r}
+data_r %>% drop_na() %>%
+ggplot( aes(x = score_press)) +
+  geom_histogram(binwidth = 5, fill = "orange", color = "black", alpha = 0.7) +
+  labs(title = "Distribution of Press Freedom Scores",
+       x = "Freedom Score",
+       y = "Count") +
+  theme_minimal()
+```
+
+**It seems like most of the countries score better than 50 which means in most countries there is fair Journalism**
+**To answer our original question we need to see what is global Distribution of world Governments and whether economy effects freedom of press**
+
+### Distribution of Democracy categories.
+```{r}
+ggplot(data_r, aes(x = democracy_index)) +
+  geom_bar(fill = "skyblue", color = "black") + 
+  labs(title = "Distribution of Democracy Categories",
+       x = "Democracy Categories",
+       y = "Count") +
+  theme_minimal()
+```
+
+**Since most of the countries are not Full Democracies and are not free but the global average for Press Freedom is higher than 50 therefore we can conclude that it is the Policies of Government which affects Press Freedom than the kind of Government**
+
+**Let us put our analysis to test**
+
+### Freedom vs. Democracy with Press Freedom
+
+```{r}
+data_r %>% drop_na()%>%
+  ggplot(aes(x = score_freedom, y = score_democracy, size = score_press, color = democracy_index)) +
+    geom_point(alpha = 0.7) +
+    scale_size_continuous(range = c(3, 15)) +
+    labs(title = "Bubble Chart: Freedom vs. Democracy with Press Freedom Bubble Size",
+         x = "Freedom Score",
+         y = "Democracy Score") +
+    theme_minimal()
+```
+
+**As we can from the above graph that some Authoritarian regimes have higher press freedom than some Hybrid regimes and some flawed democracies, therefore some Flawed Democracies might have some policies that affect Press freedom**
+
+### Classification of India As per the index.
+
+```{r}
+data_r[107,] %>%
+  select(freedom_in_the_world,economic_freedom,press_freedom,democracy_index)
+```
+
+### Definition of terms and policies of India
+
+#### Flawed Democracy
+
+'Flawed democracies' are nations where elections are fair and free and basic civil liberties are honored but may have issues (e.g. media freedom infringement and minor suppression of political opposition and critics). These nations have significant faults in other democratic aspects, including underdeveloped political culture, low levels of participation in politics, and issues in the functioning of governance.
+
+[Read more here](https://www.populismstudies.org/Vocabulary/flawed-defective-democracy/)
+
+#### Policies affecting/affected Press Freedom in India
+
+* News Ads sponsored by ruling Government
+[Read Here](https://www.reuters.com/article/india-media-idINKCN1TT1R6/)
+
+* Covid-19 and Irregular GDP Growth
+
+    [Read Here](https://iju.org.in/media-room/issues/244-role-of-media-during-the-covid-19-pandemic-and-its-impact-on-media)
+
+    [Read Here](https://www.macrotrends.net/countries/IND/india/gdp-gross-domestic-product)
+    
+
+# Conclusion
+
+* **Developing economies should adopt Free Market and Developed economies should adopt Mixed Market**
+
+* **Full Democracies give their Citizens Full Freedom**
+
+* **Most of the countries are not Full Democracies**
+
+* **Some Authoritarian regimes have better Press Freedom than some Democracies**
+
+* **Press freedom Depends on the Policies of the government**
+
+## How India can improve its numbers?
+
+* **Having a Free economy**
+
+* **Adopting New AD policy for NEWS Agencies**
+
+* **Adopting New Strategies to become Full Democracy**
+
+* **Right now India stands on 107th position Globally but scores better in Global Average in Freedom and Democracy **
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
