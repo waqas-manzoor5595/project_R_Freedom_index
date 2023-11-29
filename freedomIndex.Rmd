@@ -8,23 +8,19 @@ output: github_document
 # Freedom Index Global With respect to India
 
 #### About the Data
-From `Wikipedia`, the free encyclopedia
-This article contains a list of freedom indices produced by several non-governmental organizations that publish and maintain assessments of the state of freedom in the world, according to their own various definitions of the term, and rank countries as being free, partly free, or using various measures of freedom, including civil liberties, political rights and economic rights. Some of the indices measure only some aspects of freedom, such as democracy or corruption.
 
+From `Wikipedia`, the free encyclopedia This article contains a list of freedom indices produced by several non-governmental organizations that publish and maintain assessments of the state of freedom in the world, according to their own various definitions of the term, and rank countries as being free, partly free, or using various measures of freedom, including civil liberties, political rights and economic rights. Some of the indices measure only some aspects of freedom, such as democracy or corruption.
 
-
-### Read more about it here. 
+### Read more about it here.
 
 [Click Here](https://en.wikipedia.org/wiki/List_of_freedom_indices)
 
-
-
-
 # R Environment
+
 Preparing R Environment
 
-* Installing libraries `tidyverse` , `dplyr` , `ggplot2` and `rvest`
-* Loading libraries `tidyverse` , `dplyr` , `ggplot2` and `rvest`
+-   Installing libraries `tidyverse` , `dplyr` , `ggplot2` and `rvest`
+-   Loading libraries `tidyverse` , `dplyr` , `ggplot2` and `rvest`
 
 ```{r}
 library(tidyverse)
@@ -33,47 +29,52 @@ library(ggplot2)
 library(dplyr)
 ```
 
-
 # Scraping Data using `rvest`
 
 Web scraping is the process of extracting data from websites. The `rvest` package in R facilitates this task by providing tools to navigate and extract information from HTML documents.
 
 ### Step 1
-Go to the target website, in this case 
+
+Go to the target website, in this case
 
 [click here](https://en.wikipedia.org/wiki/List_of_freedom_indices)
 
 ### Step 2
+
 Search for the data/table
 
 ![Imgur](https://i.imgur.com/1XjKQbu.png)
 
-
 ### Step 3
 
-* Once on table, left click and press inspect.
-* On the html part, search for table format.(**as highlighted in green**)
-* Click on it, and see type of table.(**as highlighted in yellow**)
-* Copy the type table.
+-   Once on table, left click and press inspect.
+-   On the html part, search for table format.(**as highlighted in green**)
+-   Click on it, and see type of table.(**as highlighted in yellow**)
+-   Copy the type table.
 
 ![IMGUR](https://i.imgur.com/wJak1wb.png)
 
 ### Step 4
-Open R studio(**or the platform used for analysis**) 
+
+Open R studio(**or the platform used for analysis**)
 
 #### Saving url in variable
+
 ```{r}
 url <- "https://en.wikipedia.org/wiki/List_of_freedom_indices"
 ```
 
 #### Using `read_html()`to read html data
+
 ```{r}
 data <- read_html(url)
 ```
+
 #### Using `html_element()` and `html_table()`
 
-* `html_element()`used to read type of data element for scrapping.
-* `html_table()` used to convert html-type into readable DataFrame.
+-   `html_element()`used to read type of data element for scrapping.
+-   `html_table()` used to convert html-type into readable DataFrame.
+
 ```{r}
 data_r <-data %>% html_element("table.wikitable.sortable") %>% html_table()
 ```
@@ -81,38 +82,47 @@ data_r <-data %>% html_element("table.wikitable.sortable") %>% html_table()
 **Scrapping data is done let us see what data we have**
 
 # Pre-cleaning/ viewing data
+
 ### Column names
+
 ```{r}
 colnames(data_r)
 ```
+
 **As we can see column names are repeating, having duplicates, having spaces, and ending with []**
 
-### Viewing data 
+### Viewing data
+
 ```{r}
 head(data_r,20)
 ```
 
-**As we can see columns are not clean, forexample columns with `chr` should have `dbl`, columns have numbers, spaces and character parts ie; 1 free,5 not free etc, nil, n/a showing as "_" . let us fix all of it.**
+\*\*As we can see columns are not clean, forexample columns with `chr` should have `dbl`, columns have numbers, spaces and character parts ie; 1 free,5 not free etc, nil, n/a showing as "\_" . let us fix all of it.\*\*
 
 # Cleaning the data
-## Fixing the columns
-using `vector` to replace the column names
 
+## Fixing the columns
+
+using `vector` to replace the column names
 
 ```{r}
 new_colnames <- c("country", "freedom_in_the_world", "score_freedom", "economic_freedom", "score_economic", "press_freedom", "score_press", "democracy_index", "score_democracy")
 
 colnames(data_r) <- new_colnames
 ```
+
 ### Viewing new updated columns
+
 ```{r}
 colnames(data_r)
 ```
 
 **AS we can see column names have been cleaned**
 
-## Fixing the columns 
+## Fixing the columns
+
 Using `mutate()`, `gsub()` and `redix` to update column values
+
 ```{r}
 columns_to_clean <- c("freedom_in_the_world", "economic_freedom", "press_freedom", "democracy_index")
 
@@ -122,15 +132,17 @@ data_r <- data_r %>%
 ```
 
 ## Fixing unwanted spaces
+
 using`trimws`
+
 ```{r}
 data_r[] <- lapply(data_r, trimws)
 ```
 
-
-
 ## Fixing the Variable Type
+
 Again using `mutate()`
+
 ```{r}
 columns_to_convert <- c("score_freedom", "score_economic", "score_press", "score_democracy")
 
@@ -143,16 +155,19 @@ data_r <- suppressWarnings({
 ```
 
 ## Viewing Cleaned Data
+
 ```{r}
 head(data_r,20)
 ```
+
 **Now our Data is clean and ready for analyzing and Visualization**
 
 # Analyzing the data
+
 ## India VS World(average)
 
-* Lets see what is the global mean for score of freedom, economy etc.
-* Then we will compare it with how India compares with the Rest.
+-   Lets see what is the global mean for score of freedom, economy etc.
+-   Then we will compare it with how India compares with the Rest.
 
 ```{r}
 
@@ -161,16 +176,19 @@ mean_countries<-data_r %>% drop_na() %>%
       
 head(mean_countries)
 ```
+
 Right we can see global mean, now lets find out where India stands
 
 ```{r}
 Indian_r <- data_r[107,] %>% select(score_freedom, score_economic, score_press, score_democracy, country)
 head(Indian_r)
 ```
-#### It seems India is above global average in score_freedom and score_democracy but just above global average .Also there are many autocratic countries. 
-##### India is also below global average in score_economics and does very poorly in score_press.
-##### lets dig a little deeper to see with data why it is the way it is. But first let us see top performing countries in each index.
 
+#### It seems India is above global average in score_freedom and score_democracy but just above global average .Also there are many autocratic countries.
+
+##### India is also below global average in score_economics and does very poorly in score_press.
+
+##### lets dig a little deeper to see with data why it is the way it is. But first let us see top performing countries in each index.
 
 ## Top countries in each index
 
@@ -187,6 +205,7 @@ head(top_freedom) %>% select(country)
 top_economics <- data_r %>% arrange(desc(score_economic))
 head(top_economics) %>% select(country)
 ```
+
 ### Countries where Press is Absolutely free
 
 ```{r}
@@ -200,15 +219,17 @@ head(top_press) %>% select(country)
 top_democracy <- data_r %>% arrange(desc(score_democracy))
 head(top_democracy) %>% select(country)
 ```
-# Data Visualization 
 
-In this segment we: 
+# Data Visualization
 
-* Will see how different indexes changes countries performance.
-* Will see different parameters and analyze using visualization.
-* Will see why India performs low in Economic index and Press index.
+In this segment we:
+
+-   Will see how different indexes changes countries performance.
+-   Will see different parameters and analyze using visualization.
+-   Will see why India performs low in Economic index and Press index.
 
 ### Economy VS. Freedom
+
 Lets see if Free Markets/Economies mean More Freedom
 
 ```{r}
@@ -219,15 +240,13 @@ geom_point(color = "darkgreen") + geom_smooth() +
     theme_minimal()
 ```
 
-
-
 **WE can conclude**
 
-* There is a positive relation till Economic score = 70 which means if one is developing nation it is better for them to have free markets.
-* There is a negative relation from Economic score > 70 which means if one is a developed nation, it is better to have mixed market.
-
+-   There is a positive relation till Economic score = 70 which means if one is developing nation it is better for them to have free markets.
+-   There is a negative relation from Economic score \> 70 which means if one is a developed nation, it is better to have mixed market.
 
 ### Democracy VS Freedom
+
 Lets see if Democracies are inheretly Free
 
 ```{r}
@@ -243,7 +262,8 @@ data_r %>% drop_na() %>%
 **Now since India is a Democracy that is why India scores better than global average in Freedom and Democracy**
 
 #### Why India scores less in Press Freedom ?
- To answer this question lets first see how the distribution of press freedom looks like
+
+To answer this question lets first see how the distribution of press freedom looks like
 
 ### Distribution of press freedom.
 
@@ -257,10 +277,10 @@ ggplot( aes(x = score_press)) +
   theme_minimal()
 ```
 
-**It seems like most of the countries score better than 50 which means in most countries there is fair Journalism**
-**To answer our original question we need to see what is global Distribution of world Governments and whether economy effects freedom of press**
+**It seems like most of the countries score better than 50 which means in most countries there is fair Journalism** **To answer our original question we need to see what is global Distribution of world Governments and whether economy effects freedom of press**
 
 ### Distribution of Democracy categories.
+
 ```{r}
 ggplot(data_r, aes(x = democracy_index)) +
   geom_bar(fill = "skyblue", color = "black") + 
@@ -306,36 +326,32 @@ data_r[107,] %>%
 
 #### Policies affecting/affected Press Freedom in India
 
-* News Ads sponsored by ruling Government
-[Read Here](https://www.reuters.com/article/india-media-idINKCN1TT1R6/)
+-   News Ads sponsored by ruling Government [Read Here](https://www.reuters.com/article/india-media-idINKCN1TT1R6/)
 
-* Covid-19 and Irregular GDP Growth
+-   Covid-19 and Irregular GDP Growth
 
     [Read Here](https://iju.org.in/media-room/issues/244-role-of-media-during-the-covid-19-pandemic-and-its-impact-on-media)
 
     [Read Here](https://www.macrotrends.net/countries/IND/india/gdp-gross-domestic-product)
-    
 
 # Conclusion
 
-* **Developing economies should adopt Free Market and Developed economies should adopt Mixed Market**
+-   **Developing economies should adopt Free Market and Developed economies should adopt Mixed Market**
 
-* **Full Democracies give their Citizens Full Freedom**
+-   **Full Democracies give their Citizens Full Freedom**
 
-* **Most of the countries are not Full Democracies**
+-   **Most of the countries are not Full Democracies**
 
-* **Some Authoritarian regimes have better Press Freedom than some Democracies**
+-   **Some Authoritarian regimes have better Press Freedom than some Democracies**
 
-* **Press freedom Depends on the Policies of the government**
+-   **Press freedom Depends on the Policies of the government**
 
 ## How India can improve its numbers?
 
-* **Having a Free economy**
+-   **Having a Free economy**
 
-* **Adopting New AD policy for NEWS Agencies**
+-   **Adopting New AD policy for NEWS Agencies**
 
-* **Adopting New Strategies to become Full Democracy**
+-   **Adopting New Strategies to become Full Democracy**
 
-* **Right now India stands on 107th position Globally but scores better in Global Average in Freedom and Democracy**
-
-
+-   **Right now India stands on 107th position Globally but scores better in Global Average in Freedom and Democracy**
