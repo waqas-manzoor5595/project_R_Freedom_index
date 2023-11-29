@@ -75,10 +75,8 @@ Go to the target website, in this case
 Search for the data/table
 
 <figure>
-<img
-src="C:\Users\shahw\OneDrive\Documents\code_playground\project_R_Freedom_index\images\img0.png"
-alt="this" />
-<figcaption aria-hidden="true">this</figcaption>
+<img src="https://i.imgur.com/1XjKQbu.png" alt="Imgur" />
+<figcaption aria-hidden="true">Imgur</figcaption>
 </figure>
 
 ### Step 3
@@ -90,10 +88,8 @@ alt="this" />
 - Copy the type table.
 
 <figure>
-<img
-src="C:\Users\shahw\OneDrive\Documents\code_playground\project_R_Freedom_index\images\img1.png"
-alt="see" />
-<figcaption aria-hidden="true">see</figcaption>
+<img src="https://i.imgur.com/wJak1wb.png" alt="IMGUR" />
+<figcaption aria-hidden="true">IMGUR</figcaption>
 </figure>
 
 ### Step 4

@@ -46,7 +46,7 @@ Go to the target website, in this case
 ### Step 2
 Search for the data/table
 
-![this](C:\Users\shahw\OneDrive\Documents\code_playground\project_R_Freedom_index\images\img0.png)
+![Imgur](https://i.imgur.com/1XjKQbu.png)
 
 
 ### Step 3
@@ -56,7 +56,7 @@ Search for the data/table
 * Click on it, and see type of table.(**as highlighted in yellow**)
 * Copy the type table.
 
-![see](C:\Users\shahw\OneDrive\Documents\code_playground\project_R_Freedom_index\images\img1.png)
+![IMGUR](https://i.imgur.com/wJak1wb.png)
 
 ### Step 4
 Open R studio(**or the platform used for analysis**) 
