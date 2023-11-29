@@ -2,7 +2,7 @@
 title: "Freedom Index"
 author: "Waqqas Manzoor"
 date: "2023-11-23"
-output: github_document
+output: html_document
 ---
 
 # Freedom Index Global With respect to India
